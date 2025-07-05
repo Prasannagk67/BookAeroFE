@@ -10,9 +10,20 @@ const Navbar = () => {
         mobileNumber: '',
         password: ''
     });
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
 
-    const handleOpen = () => setShowModal(true);
-    const handleClose = () => setShowModal(false);
+    const handleOpen = () => {
+        setShowModal(true);
+        setError(null);
+        setSuccess(false);
+    };
+
+    const handleClose = () => {
+        setShowModal(false);
+        setError(null);
+        setSuccess(false);
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,6 +31,8 @@ const Navbar = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
+        setSuccess(false);
 
         try {
             const response = await fetch(`${process.env.REACT_APP_USER_REGISTER_API_URL}/user`, {
@@ -31,7 +44,7 @@ const Navbar = () => {
             });
 
             if (response.ok) {
-                alert('User registered successfully!');
+                setSuccess(true);
                 setFormData({
                     fullName: '',
                     userName: '',
@@ -39,13 +52,15 @@ const Navbar = () => {
                     mobileNumber: '',
                     password: ''
                 });
-                handleClose();
+                setTimeout(() => {
+                    handleClose();
+                }, 1500);
             } else {
-                const error = await response.text();
-                alert('Registration failed: ' + error);
+                const errorData = await response.json();
+                setError(errorData.message || 'Registration failed. Please try again.');
             }
         } catch (err) {
-            alert('Error: ' + err.message);
+            setError('Network error. Please try again later.');
         }
     };
 
@@ -64,6 +79,16 @@ const Navbar = () => {
                 <div className="modal-overlay">
                     <div className="modal">
                         <h2>Register</h2>
+                        {error && (
+                            <div className="error-message">
+                                {error}
+                            </div>
+                        )}
+                        {success && (
+                            <div className="success-message">
+                                Registration successful! Closing...
+                            </div>
+                        )}
                         <form className="register-form" onSubmit={handleSubmit}>
                             <input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} required />
                             <input type="text" name="userName" placeholder="User Name" value={formData.userName} onChange={handleChange} required />
