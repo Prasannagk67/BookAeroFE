@@ -22,7 +22,7 @@ const Navbar = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:8080/user', {
+            const response = await fetch(`${process.env.REACT_APP_USER_REGISTER_API_URL}/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
